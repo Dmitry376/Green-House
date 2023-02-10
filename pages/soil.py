@@ -14,6 +14,10 @@ def main():
     Hb = data['Hb']
     if hand:
         st.subheader("Включен ручной режим управления")
+        
+    resbtn = st.button("Обновить данные")
+    if resbtn:
+        st.experimental_rerun()
     
     last_soils = [0, 0, 0, 0, 0, 0]
     for i in range(6):
@@ -169,6 +173,4 @@ def main():
         with open("properties.json", 'w') as write_file:
                     json.dump(data, write_file)
                 
-        
-        
 main()

@@ -134,6 +134,10 @@ def main():
     st.title("Данные с датчиков температуры и влажности")
     if hand:
         st.subheader("Включен ручной режим управления")
+
+    resbtn = st.button("Обновить данные")
+    if resbtn:
+        st.experimental_rerun()
         
     col1, col2 = st.columns(2)
     
@@ -191,11 +195,11 @@ def main():
             if not hand:
                 col2.write("Текущее значение параметра H: " + str(H))
                 if last_avg_hum > H:
-                    btn2 = col2.button("Запустить увлжнитель", disabled = True)
+                    btn2 = col2.button("Запустить увлaжнитель", disabled = True)
                 else:
-                    btn2 = col2.button("Запустить увлжнитель")
+                    btn2 = col2.button("Запустить увлaжнитель")
             else:
-                btn2 = col2.button("Запустить увлжнитель")
+                btn2 = col2.button("Запустить увлaжнитель")
             if btn2:
                 total_hum(1)
                 data['humidification'] = 1
