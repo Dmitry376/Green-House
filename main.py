@@ -128,6 +128,97 @@ def main():
     hand = data['hand']
     fork_state = data['airing']
     hum_state = data['humidification']
+    st.set_page_config(
+        page_title = "Temp and hum data",
+        layout = "wide")
     st.title("Данные с датчиков температуры и влажности")
+    if hand:
+        st.subheader("Включен ручной режим управления")
+        
+    col1, col2 = st.columns(2)
     
+    temp_df = table_to_df('temp')
+    data_count = len(temp_df['avg_temp']) - 1
+    if data_count != -1:
+        last_avg_temp = temp_df['avg_temp'][data_count]
+    else:
+        last_avg_temp = 0
+    with col1:
+        col1.header("Температура")
+        col1.write("Последняя средняя температура: " + str(last_avg_temp))
+        if not fork_state:
+            if not hand:
+                col1.write("Текущее значение параметра T: " + str(T))
+                if last_avg_temp <= T:
+                    btn1 = col1.button('Открыть форточку', disabled = True)
+                else:
+                    btn1 = col1.button('Открыть форточку')
+            else:
+                btn1 = col1.button('Открыть форточку')
+            if btn1:
+                fork(1)
+                data['airing'] = 1
+                with open("properties.json", 'w') as write_file:
+                    json.dump(data, write_file)
+                st.experimental_rerun()
+        else:
+            btn1 = col1.button('Закрыть форточку')
+            if btn1:
+                fork(0)
+                data['airing'] = 0
+                with open("properties.json", 'w') as write_file:
+                    json.dump(data, write_file)
+                st.experimental_rerun()
+        col1.dataframe(data = temp_df, use_container_width = True)
+        col1.write("График средней температуры")
+        col1.line_chart(data = temp_df, x = 'time', y = 'avg_temp')
+        col1.write("Графики с каждого датчика температуры (1-4)")
+        col1.line_chart(data = temp_df, x = 'time', y = 'temp_1')
+        col1.line_chart(data = temp_df, x = 'time', y = 'temp_2')
+        col1.line_chart(data = temp_df, x = 'time', y = 'temp_3')
+        col1.line_chart(data = temp_df, x = 'time', y = 'temp_4')
+        
+    hum_df = table_to_df('hum')
+    data_count = len(hum_df['avg_hum']) - 1
+    if data_count != -1:
+        last_avg_hum = hum_df['avg_hum'][data_count]
+    else:
+        last_avg_hum = 0
+    with col2:
+        col2.header("Влажность")
+        col2.write("Последняя средняя влажность: " + str(last_avg_hum))
+        if not hum_state:
+            if not hand:
+                col2.write("Текущее значение параметра H: " + str(H))
+                if last_avg_hum > H:
+                    btn2 = col2.button("Запустить увлжнитель", disabled = True)
+                else:
+                    btn2 = col2.button("Запустить увлжнитель")
+            else:
+                btn2 = col2.button("Запустить увлжнитель")
+            if btn2:
+                total_hum(1)
+                data['humidification'] = 1
+                with open("properties.json", 'w') as write_file:
+                    json.dump(data, write_file)
+                st.experimental_rerun()
+            
+        else:
+            btn2 = col2.button("Выключить увлажнитель")
+            if btn2:
+                total_hum(0)
+                data['humidification'] = 0
+                with open("properties.json", 'w') as write_file:
+                    json.dump(data, write_file)
+                st.experimental_rerun()
+        col2.dataframe(data = hum_df, use_container_width = True)
+        col2.write("График средней влажности")
+        col2.line_chart(data = hum_df, x = 'time', y = 'avg_hum')
+        col2.write("Графики с каждого датчика влажности (1-4)")
+        col2.line_chart(data = hum_df, x = 'time', y = 'hum_1')
+        col2.line_chart(data = hum_df, x = 'time', y = 'hum_2')
+        col2.line_chart(data = hum_df, x = 'time', y = 'hum_3')
+        col2.line_chart(data = hum_df, x = 'time', y = 'hum_4')
+    with open("properties.json", 'w') as write_file:
+        json.dump(data, write_file)
 main()
