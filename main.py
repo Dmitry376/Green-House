@@ -6,6 +6,8 @@ import pandas as pd
 import streamlit as st
 
 def session():
+    # Эта функция создает подключение к базе данных и инициализирует таблицы для хранения данных
+    # Функция возвращает объект подключения SQLite
     con = sl.connect('data.db')
     with con:
         sql_data = con.execute("select count(*) from sqlite_master where type='table' and name='temp'")
@@ -55,6 +57,8 @@ def session():
 
 
 def stop_session():
+    # Эта функция удаляет все данные из таблиц температуры, влажности и почвы в базе данных
+    # Функция сначала вызывает функцию session() для получения объекта подключения, а затем выполняет инструкции SQL для очистки таблиц
     con = session()
     with con:
         con.execute("DELETE FROM temp")
@@ -63,6 +67,9 @@ def stop_session():
     con.close()
     
 def data_update():
+    # Эта функция извлекает данные с датчиков температуры, влажности и почвы с помощью REST API
+    # Функция также вычисляет среднюю температуру и влажность по данным четырех датчиков и сохраняет данные в соответствующих таблицах базы данных
+    # Функция возвращает данные с датчиков температуры, влажности и почвы в виде списков
     con = session()
     temp_link = 'https://dt.miet.ru/ppo_it/api/temp_hum/'
     temp_sql = 'INSERT INTO temp (date, time, temp_1, temp_2, temp_3, temp_4, avg_temp) values(?, ?, ?, ?, ?, ?, ?)'
@@ -102,24 +109,41 @@ def data_update():
     return temp, hum, soil
 
 def fork(state):
+    # Эта функция отправляет запрос на исправление внешнему API для изменения состояния устройства fork
+    # Функция принимает параметр 'state', который может быть либо 0, либо 1, указывающий, должно ли устройство быть выключено или включено
+    # Функция возвращает код состояния HTTP ответа от API
     link = "https://dt.miet.ru/ppo_it/api/fork_drive?state=" + str(state)
     response = requests.patch(link)
     return response.status_code
 
 def watering(device_id, state):
+    # Эта функция отправляет запрос на исправление во внешний API для изменения состояния поливочного устройства
+    # Функция принимает два параметра: 'device_id' - это целое число, которое идентифицирует устройство, а 'state' - логическое значение, указывающее, должно ли устройство быть выключено или включено
+    # Функция возвращает код состояния HTTP ответа от API
     link = "https://dt.miet.ru/ppo_it/api/watering?state=" + str(state) + "&id=" + str(device_id)
     response = requests.patch(link)
     return response.status_code
 
 def total_hum(state):
+    # Эта функция отправляет запрос на исправление во внешний API для изменения состояния устройства увлажнителя
+    # Функция принимает параметр 'state', который может быть либо 0, либо 1, указывающий, должно ли устройство быть выключено или включено
+    # Функция возвращает код состояния HTTP ответа от API
     link = "https://dt.miet.ru/ppo_it/api/total_hum?state=" + str(state)
     response = requests.patch(link)
     return response.status_code
 
 def table_to_df(table_name):
+    # Эта функция преобразует данные из указанной таблицы в базе данных в фрейм данных Pandas
+    # Функция принимает параметр 'table_name', который представляет собой строку, указывающую имя таблицы
+    # Функция возвращает фрейм данных Pandas, содержащий данные из указанной таблицы
     return pd.read_sql_query("select * from " + table_name, session())
 
 def main():
+    # Это основная функция, которая запускает приложение Streamlit для отображения данных с датчиков и выполнения действий на внешних устройствах
+    # Функция сначала считывает параметры из файла JSON
+    # Затем функция вызывает функцию session() для получения объекта подключения к базе данных
+    # Затем функция создает приложение Streamlit и определяет макет и функциональность приложения
+    # Функция также вызывает другие функции для обновления данных, очистки данных и выполнения действий на внешних устройствах
     with open("properties.json", "r") as read_file:
         data = json.load(read_file)
     T = data['T']
