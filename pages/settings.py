@@ -17,6 +17,14 @@ def main():
     Hb = data['Hb']
     hand = data['hand']
     time = data['time']
+    fork_state = data['airing']
+    hum_state = data['humidification']
+    s1 = data['soil_1']
+    s2 = data['soil_2']
+    s3 = data['soil_3']
+    s4 = data['soil_4']
+    s5 = data['soil_5']
+    s6 = data['soil_6']
     # Настройка конфигурации страницы для приложения Streamlit и отображение заголовка страницы настроек.
     st.set_page_config(
         page_title="Settings",
@@ -49,6 +57,15 @@ def main():
                 json.dump(data, write_file)
             st.experimental_rerun()
      
+    st.subheader("Текущее состояние устройств (1 - включено/открыто, 0 - выключено/закрыто): ")
+    st.text("Форточка: " + str(fork_state))
+    st.text("Общий увлажнитель: " + str(hum_state))
+    st.text("Полив бороздки №1: " + str(s1))
+    st.text("Полив бороздки №2: " + str(s2))
+    st.text("Полив бороздки №3: " + str(s3))
+    st.text("Полив бороздки №4: " + str(s4))
+    st.text("Полив бороздки №5: " + str(s5))
+    st.text("Полив бороздки №6: " + str(s6))
     # Сохранение обновленных конфигурационных данных в файл "properties.json".
     with open("properties.json", "w") as write_file:
         json.dump(data, write_file)
